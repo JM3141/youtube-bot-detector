@@ -1,4 +1,4 @@
-# YouTube Bot Detector
+# YouTube Bot Detector!
 
 A Python project for detecting suspicious or automated activity on YouTube using API data and machine learning.
 
