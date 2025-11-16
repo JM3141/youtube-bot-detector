@@ -3,3 +3,6 @@
 
 #Ignore data folder
 data/
+
+#Ignore enviornment variables file
+.env 
