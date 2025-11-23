@@ -15,24 +15,37 @@ API_KEY = os.getenv("GOOGLE_API_KEY")
 #build function contains API name, API version and API key
 youtube = build('youtube','v3', developerKey=API_KEY)
 
-video_ids =  ['jMrNjN0-osw', 'QKYFfYLe5rs', '3MfD_V0o_4U', 'yd_uG3TtREs', '5VYsnngkS_U', 'p2POGKxC0G8', 'gBuecIOZLV4', 'BKOVzHcjEIo', 'cfPHxW47E60', 'IEYDqdl9KbQ']
+list_of_video_IDs =  ['jMrNjN0-osw', 'QKYFfYLe5rs', '3MfD_V0o_4U', 'yd_uG3TtREs', '5VYsnngkS_U', 'p2POGKxC0G8', 'gBuecIOZLV4', 'BKOVzHcjEIo', 'cfPHxW47E60', 'IEYDqdl9KbQ']
 
-def get_comment_threads(youtube, video_ID):
-    results = youtube.commentThreads().list(
-    part = "snippet",
-    maxResults = 1,
-    videoId = video_ID,
-    textFormat = "plainText"
-    ).execute()
+def get_comment_threads(youtube, video_IDs):
 
-    for item in results["items"]:
-        comment = item["snippet"]["topLevelComment"]
-        author= comment["snippet"]["authorDisplayName"]
-        text = comment["snippet"]["textDisplay"]
-        published = comment["snippet"]["publishedAt"]
-        likeCount = comment["snippet"]["likeCount"]
-        print(author, text, published, likeCount)
+    all_comments = []
 
-    return results["items"]
+    for video_ID in video_IDs:
+        results = youtube.commentThreads().list(
+        part = "snippet",
+        maxResults = 5,
+        videoId = video_ID,
+        textFormat = "plainText"
+        ).execute()
 
-get_comment_threads(youtube, video_ids[0])
+        for item in results["items"]:
+            comment = item["snippet"]["topLevelComment"]
+            author= comment["snippet"]["authorDisplayName"]
+            text = comment["snippet"]["textDisplay"]
+            published = comment["snippet"]["publishedAt"]
+            likeCount = comment["snippet"]["likeCount"]
+            
+
+            all_comments.append({
+                "author": author,
+                "text": text,
+                "published": published,
+                "likeCount": likeCount
+            })
+        
+    return all_comments
+    
+
+    
+
