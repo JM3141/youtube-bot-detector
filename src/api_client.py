@@ -8,6 +8,8 @@ from googleapiclient.discovery import build
 from dotenv import load_dotenv, dotenv_values
 load_dotenv()
 
+from datetime import datetime
+
 #accessing value and storing it in variable
 API_KEY = os.getenv("GOOGLE_API_KEY")
 
@@ -30,21 +32,100 @@ def get_comment_threads(youtube, video_IDs):
         ).execute()
 
         for item in results["items"]:
+            id = item["snippet"]["topLevelComment"]["id"]
             comment = item["snippet"]["topLevelComment"]
             author= comment["snippet"]["authorDisplayName"]
-            text = comment["snippet"]["textDisplay"]
-            published = comment["snippet"]["publishedAt"]
+            text = comment["snippet"]["textOriginal"]
+            publishedAt = comment["snippet"]["publishedAt"]
             likeCount = comment["snippet"]["likeCount"]
-            
-
+            author_channel_id = comment["snippet"]["authorChannelId"]["value"]
+            author_profile_image_url = comment["snippet"]["authorProfileImageUrl"]
+            author_channel_url = comment["snippet"]["authorChannelUrl"]
+            updatedAt  = comment["snippet"]["updatedAt"]
+     
             all_comments.append({
+                "id": id,
                 "author": author,
                 "text": text,
-                "published": published,
-                "likeCount": likeCount
+                "publishedAt": parse_timestamp(publishedAt),
+                "likeCount": likeCount,
+                "authorChannelId": author_channel_id,
+                "authorProfileImageUrl": author_profile_image_url,
+                "authorChannelUrl": author_channel_url,
+                "updatedAt": parse_timestamp(updatedAt)            
             })
         
     return all_comments
+
+
+
+def parse_timestamp(ts: str) -> datetime:
+    return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+
+
+def get_comment_list(youtube, parent_IDs):
+
+    comments_replies = []
+
+    for parent_ID in parent_IDs:
+        results = youtube.comments().list(
+        part = "snippet",
+        parentId = parent_ID,
+        maxResults = 5,
+        textFormat = "plainText"
+        ).execute()
+
+        for item in results["items"]:
+            id = item["id"]
+            parent_id = item["snippet"]["parentId"]
+            comment = item["snippet"]["textOriginal"]
+            author_channel_id = item["snippet"]["authorChannelId"]["value"]
+            author = item["snippet"]["authorDisplayName"]
+            author_profile_image_url = item["snippet"]["authorProfileImageUrl"]
+            author_channel_url = item["snippet"]["authorChannelUrl"]
+            likeCount = item["snippet"]["likeCount"]
+            publishedAt = item["snippet"]["publishedAt"]
+            updatedAt  = item["snippet"]["updatedAt"]
+
+            comments_replies.append({
+                "id": id,
+                "parentId": parent_id,
+                "author": author,
+                "text": comment,
+                "publishedAt": parse_timestamp(publishedAt),
+                "likeCount": likeCount,
+                "authorChannelId": author_channel_id,
+                "authorProfileImageUrl": author_profile_image_url,
+                "authorChannelUrl": author_channel_url,
+                "updatedAt": parse_timestamp(updatedAt)            
+            })
+     
+    
+
+    return comments_replies
+    
+   
+
+#method to get all comments
+def get_all_comments_for_videos(youtube, video_ids):
+    result = {}
+
+    for video_id in video_ids:
+        top_comments = get_comment_threads(youtube, [video_id])
+
+        for comment in top_comments:
+            parent_id = comment["id"]
+            replies = get_comment_list(youtube, [parent_id])
+            comment["replies"] = replies
+
+        result[video_id] = top_comments
+
+    return result 
+
+#change the test files again to test get_all_comments_for_videos method
+
+
+
     
 
     
