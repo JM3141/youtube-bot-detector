@@ -120,13 +120,44 @@ def get_all_comments_for_videos(youtube, video_ids):
 
         result[video_id] = top_comments
 
-    return result 
+    return result
+    
 
-#change the test files again to test get_all_comments_for_videos method
+def get_video_statistics(youtube, video_IDs):
+
+    video_statistics = []
+
+    for video_ID in video_IDs:
+       results = youtube.videos().list(
+       part = "statistics,snippet",
+       id = video_ID
+       ).execute()
+
+       for item in results["items"]:
+           id = item["id"]
+           publishedAt = item["snippet"]["publishedAt"]
+           viewCount = item["statistics"]["viewCount"]
+           likeCount = item["statistics"]["likeCount"]
+           commentCount = item["statistics"]["commentCount"]
+
+           video_statistics.append({
+                "id": id,
+                "publishedAt": parse_timestamp(publishedAt),
+                "viewCount": int(viewCount),
+                "likeCount": int(likeCount),
+                "commentCount": int(commentCount)
+           })
+               
+    return video_statistics
+
+
+          
+
+
+
 
 
 
     
 
     
-
