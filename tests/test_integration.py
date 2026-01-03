@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from src.api_client import get_comment_threads
 from src.api_client import get_all_comments_for_videos
+from src.api_client import get_video_statistics
 from datetime import datetime
 
 #change this by adding the new attributes
@@ -94,6 +95,39 @@ def test_get_all_comments():
 
     pprint(comments)
 
+@pytest.mark.integration
+def test_get_video_statistics_real():
+
+    if not API_KEY:
+        pytest.skip("GOOGLE_API_KEY is not set in environment") 
+
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+    video_ids = ['AHRM_QNvp9E']
+    
+    videos = get_video_statistics(youtube, video_ids)
+
+    assert isinstance(videos, list)
+    assert len(videos) > 0
+
+    first = videos[0]
+
+    assert "id" in first
+    assert "publishedAt" in first
+    assert "viewCount" in first
+    assert "likeCount" in first
+    assert "commentCount" in first
+
+    assert isinstance(first["publishedAt"], datetime)
+    assert isinstance(first["viewCount"], int)
+    assert isinstance(first["likeCount"], int)
+    assert isinstance(first["commentCount"], int)
+
+    pprint(videos)
+
+
+
+    
 
 
 
