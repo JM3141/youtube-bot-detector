@@ -2,7 +2,9 @@ from unittest.mock import MagicMock
 from src.api_client import get_comment_threads
 from src.api_client import get_all_comments_for_videos
 from src.api_client import get_video_statistics
-from datetime import datetime
+from src.api_client import get_Channel_info
+from src.api_client import parse_timestamp
+
 
 
 def test_get_comment_threads():
@@ -18,12 +20,12 @@ def test_get_comment_threads():
                        "snippet": {                      
                            "authorDisplayName": "Test Author",
                            "textOriginal": "This is a fake comment",
-                           "publishedAt": datetime(2025, 11, 22, 19, 0, 0),
+                           "publishedAt": "2025-11-22T19:00:00Z",
                            "likeCount": 42,
                            "authorChannelId": { "value": "UC1234567890FAKEID" },
                            "authorProfileImageUrl": "https://example.com/avatar.png",
                            "authorChannelUrl": "https://www.youtube.com/channel/UC1234567890FAKEID",
-                           "updatedAt": datetime(2025, 12, 13, 19, 0, 0)
+                           "updatedAt": "2025-12-13T19:00:00Z"
                        }
                     }
 
@@ -43,12 +45,12 @@ def test_get_comment_threads():
     assert comments[0]["id"] == "COMMENT_ID_12345"
     assert comments[0]["author"] == "Test Author"
     assert comments[0]["text"] == "This is a fake comment"
-    assert comments[0]["publishedAt"] == "2025-11-22T19:00:00Z"
+    assert comments[0]["publishedAt"] == parse_timestamp("2025-11-22T19:00:00Z")
     assert comments[0]["likeCount"] == 42
     assert comments[0]["authorChannelId"] =="UC1234567890FAKEID"
     assert comments[0]["authorProfileImageUrl"] == "https://example.com/avatar.png"
     assert comments[0]["authorChannelUrl"] == "https://www.youtube.com/channel/UC1234567890FAKEID"
-    assert comments[0]["updatedAt"] == "2025-12-13T19:00:00Z"
+    assert comments[0]["updatedAt"] == parse_timestamp("2025-12-13T19:00:00Z")
 
 def test_get_all_comments():
     
@@ -141,9 +143,63 @@ def test_get_video_statistics():
     assert len(video_statistics) == 2
 
     assert video_statistics[0]["id"] == "abc123xyz"
-    assert video_statistics[0]["publishedAt"] == "2023-05-14T12:30:00Z"
+    assert video_statistics[0]["publishedAt"] == parse_timestamp("2023-05-14T12:30:00Z")
     assert video_statistics[0]["viewCount"] == 15432
     assert video_statistics[0]["likeCount"] == 842
     assert video_statistics[0]["commentCount"] == 129
 
 
+def test_get_Channel_info():
+
+    youtube = MagicMock()
+
+    youtube.channels.return_value.list.return_value.execute.return_value = {
+        "items": [
+            {
+                "id": "abc345xyz",
+                "snippet": {
+                    "title": "TotalFootball Highlights",
+                    "description": "Daily football highlights and tactical breakdowns.",
+                    "customUrl": "https://www.youtube.com/@TotalFootballHighlights",
+                    "publishedAt": "2023-05-14T12:30:00Z",
+                    "thumbnails": {
+                        "high": { 
+                          "url": "https://yt3.ggpht.fakecdn.com/a/AATXAJzff001_high.jpg" 
+                        }
+                    }
+                },
+
+                "contentDetails": {
+                   "relatedPlaylists": {                      
+                        "uploads": "UUfakechanneluploads01"
+                    }
+                },
+
+                "statistics": {
+                    "viewCount": 15420392,
+                    "subscriberCount": 482000,
+                    "videoCount": 1264
+                }
+
+            }
+
+        ]
+
+    }
+
+    channel = ["fakechannel1","fakechannel2"]
+
+    channel_info = get_Channel_info(youtube, channel)
+    
+    assert len(channel) == 2
+
+    assert channel_info[0]["id"] == "abc345xyz"
+    assert channel_info[0]["title"] == "TotalFootball Highlights"
+    assert channel_info[0]["description"] == "Daily football highlights and tactical breakdowns."
+    assert channel_info[0]["customUrl"] == "https://www.youtube.com/@TotalFootballHighlights"
+    assert channel_info[0]["publishedAt"] == parse_timestamp("2023-05-14T12:30:00Z") 
+    assert channel_info[0]["thumbnailUrl"] == "https://yt3.ggpht.fakecdn.com/a/AATXAJzff001_high.jpg" 
+    assert channel_info[0]["uploads"] == "UUfakechanneluploads01"
+    assert channel_info[0]["viewCount"] == 15420392
+    assert channel_info[0]["subscriberCount"] == 482000
+    assert channel_info[0]["videoCount"] == 1264
