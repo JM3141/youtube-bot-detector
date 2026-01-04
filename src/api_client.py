@@ -151,6 +151,47 @@ def get_video_statistics(youtube, video_IDs):
     return video_statistics
 
 
+def get_Channel_info(youtube, channel_IDs):
+
+    channel_info = []
+
+    for channel_ID in channel_IDs:
+        results = youtube.channels().list(
+        part = "id,snippet,statistics,contentDetails",
+        id = channel_ID,
+        maxResults = 5
+        ).execute()
+
+        for item in results["items"]:
+            id = item["id"]
+            title = item["snippet"]["title"]
+            description  = item["snippet"]["description"]
+            customUrl = item["snippet"]["customUrl"]
+            publishedAt = item["snippet"]["publishedAt"]
+            thumbnailUrl = item["snippet"]["thumbnails"]["high"]["url"]
+            viewCount = item["statistics"]["viewCount"]
+            subscriberCount = item["statistics"]["subscriberCount"]
+            videoCount = item["statistics"]["videoCount"]
+            uploads = item["contentDetails"]["relatedPlaylists"]["uploads"]
+
+            channel_info.append({
+                   "id": id,
+                   "title": title,
+                   "description": description,
+                   "customUrl": customUrl,
+                   "publishedAt": parse_timestamp(publishedAt),
+                   "thumbnailUrl": thumbnailUrl,
+                   "viewCount": int(viewCount),
+                   "subscriberCount": int(subscriberCount),
+                   "videoCount": int(videoCount),
+                   "uploads": uploads
+            })
+
+    return channel_info
+
+
+
+
           
 
 
