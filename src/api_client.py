@@ -190,6 +190,56 @@ def get_Channel_info(youtube, channel_IDs):
     return channel_info
 
 
+def get_Channel_Activity(youtube, channel_IDs):
+
+    channel_Activity_info = []
+
+    for channel_ID in channel_IDs:
+        results = youtube.activities().list(
+        part = "snippet,contentDetails",
+        channelId = channel_ID,
+        maxResults = 5
+        ).execute()
+
+        for item in results["items"]:
+            publishedAt = item["snippet"]["publishedAt"]
+            channelId = item["snippet"]["channelId"]
+            type = item["snippet"]["type"]
+
+            upload = None
+            like = None
+            playlistAdd = None
+
+            if type == "upload":
+                upload = item["contentDetails"]["upload"]["videoId"]
+            
+            elif type == "like":
+                like = item["contentDetails"]["like"]["resourceId"]["videoId"]
+            
+            elif type == "playListItem":
+                playlistAdd = item["contentDetails"]["playlistItem"]["resourceId"]["videoId"]
+
+            channel_Activity_info.append({
+                   "channelId": channelId,
+                   "publishedAt": parse_timestamp(publishedAt),
+                   "type": type,
+                   "upload": upload,
+                   "like": like,
+                   "playListAdd": playlistAdd                  
+            })
+
+    return channel_Activity_info
+
+
+
+
+
+
+
+        
+
+     
+
 
 
           
