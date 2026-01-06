@@ -3,6 +3,7 @@ from src.api_client import get_comment_threads
 from src.api_client import get_all_comments_for_videos
 from src.api_client import get_video_statistics
 from src.api_client import get_Channel_info
+from src.api_client import get_Channel_Activity
 from src.api_client import parse_timestamp
 
 
@@ -191,7 +192,7 @@ def test_get_Channel_info():
 
     channel_info = get_Channel_info(youtube, channel)
     
-    assert len(channel) == 2
+    assert len(channel_info) == 2
 
     assert channel_info[0]["id"] == "abc345xyz"
     assert channel_info[0]["title"] == "TotalFootball Highlights"
@@ -203,3 +204,53 @@ def test_get_Channel_info():
     assert channel_info[0]["viewCount"] == 15420392
     assert channel_info[0]["subscriberCount"] == 482000
     assert channel_info[0]["videoCount"] == 1264
+
+
+
+def test_get_Channel_Activity():
+
+    youtube = MagicMock()
+
+    youtube.activities.return_value.list.return_value.execute.return_value = {
+        "items": [
+            {
+                "snippet": {
+                    "publishedAt": "2023-05-14T12:30:00Z",
+                    "channelId": "UCa1B2c3D4e5F6g7H8i9J0K",
+                    "type": "upload",                    
+                },
+                "contentDetails": {
+                    "upload": {
+                        "videoId": "aB3dE9FgH1k"
+                    },
+                     "like": {
+                         "resourceId": {
+                             "videoId": None
+                         }
+                     },
+                      "playlistItem": {
+                          "resourceId": {
+                              "videoId": None
+                          }
+                      }
+                     
+                }
+                                       
+            }
+
+        ]
+           
+    }
+
+    channel = ["UCa1B2c3D4e5F6g7H8i9J0K", "UCx9Y8z7W6v5U4t3S2r1Q0P"]
+
+    channel_activity = get_Channel_Activity(youtube, channel)
+
+    assert len(channel_activity) == 2
+
+    assert channel_activity[0]["publishedAt"] == parse_timestamp("2023-05-14T12:30:00Z")
+    assert channel_activity[0]["channelId"] == "UCa1B2c3D4e5F6g7H8i9J0K"
+    assert channel_activity[0]["type"] == "upload"
+    assert channel_activity[0]["upload"] == "aB3dE9FgH1k"
+ 
+ 
