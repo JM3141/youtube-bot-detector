@@ -7,6 +7,7 @@ from src.api_client import get_comment_threads
 from src.api_client import get_all_comments_for_videos
 from src.api_client import get_video_statistics
 from src.api_client import get_Channel_info
+from src.api_client import get_Channel_Activity
 
 from datetime import datetime
 
@@ -168,6 +169,40 @@ def test_get_Channel_info_real():
     assert isinstance(first["uploads"], str)
     
     pprint(channel)
+
+@pytest.mark.integration
+def test_get_Channel_Activity_real():
+
+    if not API_KEY:
+       pytest.skip("GOOGLE_API_KEY is not set in environment")
+
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+    channel_IDs = ["UCNWfrhzNRMYx_p1YIUKVDKQ"]
+
+    channel = get_Channel_Activity(youtube, channel_IDs)
+
+    assert isinstance(channel, list)
+    assert len(channel) > 0
+
+    first = channel[0]
+
+    assert "channelId" in first
+    assert "publishedAt" in first
+    assert "type" in first
+    assert "upload" in first
+    assert "like" in first
+    assert "playListAdd" in first
+
+
+    assert isinstance(first["channelId"], str)
+    assert isinstance(first["publishedAt"], datetime)
+    assert isinstance(first["type"], str)
+    
+    pprint(channel)
+
+
+
     
 
 
