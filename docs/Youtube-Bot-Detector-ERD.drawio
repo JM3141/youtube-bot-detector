@@ -61,7 +61,7 @@
         <mxCell id="Tim3fh1xkryQV3GluO90-20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="ChannelActivity" vertex="1">
           <mxGeometry height="30" width="60" x="610" y="730" as="geometry" />
         </mxCell>
-        <mxCell id="Tim3fh1xkryQV3GluO90-21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="activity_ID{PK}&lt;div&gt;youtubeActivity_ID&lt;br&gt;&lt;div&gt;publishedAt&lt;br&gt;&lt;div&gt;type&lt;/div&gt;&lt;div&gt;upload&lt;/div&gt;&lt;div&gt;like&lt;/div&gt;&lt;div&gt;playlistAdd&lt;/div&gt;&lt;div&gt;channel_ID{FK}&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="Tim3fh1xkryQV3GluO90-21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="activity_ID{PK}&lt;div&gt;youtubeActivity_ID&lt;br&gt;&lt;div&gt;publishedAt&lt;br&gt;&lt;div&gt;type&lt;/div&gt;&lt;div&gt;video_id_of_action&lt;/div&gt;&lt;div&gt;channel_ID{FK}&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="30" width="60" x="610" y="850" as="geometry" />
         </mxCell>
         <mxCell id="Tim3fh1xkryQV3GluO90-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" value="" vertex="1">
@@ -195,9 +195,6 @@
         </mxCell>
         <mxCell id="tLKM59ohXjkIq1rmHiD5-48" parent="1" style="triangle;whiteSpace=wrap;html=1;fillColor=#330000;rotation=-90;" value="" vertex="1">
           <mxGeometry height="10" width="10" x="749.9965005079684" y="384.99650050796834" as="geometry" />
-        </mxCell>
-        <mxCell id="gdGDrrjRarK4q8bgOLyG-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Text" vertex="1">
-          <mxGeometry height="30" width="60" x="490" y="620" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
