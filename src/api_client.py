@@ -231,6 +231,59 @@ def get_Channel_Activity(youtube, channel_IDs):
     return channel_Activity_info
 
 
+#list of keywords representing types of youtube videos with high bot activity
+# themes -> crypto, roblox, robux
+# 3 keywords per theme
+list_of_keywords = ["crypto", "crypto news"
+                    "crypto trading", "robux",
+                    "robux free", "robux gift card codes",
+                    "robux giveaway", "roblox", "roblox gameplay"
+                    "roblox adopt me", "roblox trading"]
+
+
+def searchForVideos(youtube, list_of_keywords):
+
+    videos = []
+
+    for keyword in list_of_keywords:
+        results = youtube.search().list(
+        part = "snippet",
+        q = keyword,
+        type ="video",
+        maxResults = 1
+        ).execute()
+
+        for item in results["items"]:
+            videoId = item["id"]["videoId"]
+            channelId = item["snippet"]["channelId"]
+            title = item["snippet"]["title"]
+            publishedAt = item["snippet"]["publishedAt"]
+            channelTitle = item["snippet"]["channelTitle"]
+
+        videos.append({
+            "keyword": keyword,
+            "videoId": videoId,
+            "channelId": channelId,
+            "title": title,
+            "publishedAt": parse_timestamp(publishedAt),
+            "channelTitle": channelTitle
+        })
+
+        return videos
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
