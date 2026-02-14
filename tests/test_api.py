@@ -5,6 +5,7 @@ from src.api_client import get_video_statistics
 from src.api_client import get_Channel_info
 from src.api_client import get_Channel_Activity
 from src.api_client import parse_timestamp
+from src.api_client import searchForVideos
 
 
 
@@ -252,5 +253,47 @@ def test_get_Channel_Activity():
     assert channel_activity[0]["channelId"] == "UCa1B2c3D4e5F6g7H8i9J0K"
     assert channel_activity[0]["type"] == "upload"
     assert channel_activity[0]["upload"] == "aB3dE9FgH1k"
+
+
+
+def test_searchForVideos():
+
+    youtube = MagicMock()
+
+    youtube.search.return_value.list.return_value.execute.return_value = {
+        "items": [
+            {
+               "id": {
+                   "videoId": "XyZ123AbCdE",            
+                },
+                "snippet": {
+                    "channelId": "UC9aBcDeFgHiJkLmNoPqRsT",
+                    "title": "How to trade for Crypto Beginners",
+                    "publishedAt": "2024-01-15T14:32:00Z",
+                    "channelTitle": "CryptoMaster Academy"
+                }
+            }
+        ]
+    }
+
+    fake_keywords = ["keyword1", "keyword2", 
+                    "keyword3", "keyword4", 
+                    "keyword5", "keyword6", 
+                    "keyword7", "keyword8",
+                    "keyword9", "keyword10"
+                    "keyword11"]
+    
+    collection_of_videos = searchForVideos(youtube, fake_keywords)
+
+    assert collection_of_videos[0]["publishedAt"] == parse_timestamp("2024-01-15T14:32:00Z")
+    assert collection_of_videos[0]["channelId"] == "UC9aBcDeFgHiJkLmNoPqRsT"
+    assert collection_of_videos[0]["title"] == "How to trade for Crypto Beginners"
+    assert collection_of_videos[0]["channelTitle"] == "CryptoMaster Academy"
+
+
+
+
+
+
  
  
