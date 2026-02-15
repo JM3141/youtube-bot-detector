@@ -8,6 +8,7 @@ from src.api_client import get_all_comments_for_videos
 from src.api_client import get_video_statistics
 from src.api_client import get_Channel_info
 from src.api_client import get_Channel_Activity
+from src.api_client import searchForVideos
 
 from datetime import datetime
 
@@ -200,6 +201,42 @@ def test_get_Channel_Activity_real():
     assert isinstance(first["type"], str)
     
     pprint(channel)
+
+@pytest.mark.integration
+def test_searchForVideos_real():
+
+    if not API_KEY:
+        pytest.skip("GOOGLE_API_KEY is not set in environment")
+    
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+    keywords = ["crypto", "crypto news"]
+
+    videos = searchForVideos(youtube, keywords)
+
+    assert isinstance(videos, list)
+    assert len(videos) >  0
+
+    first = videos[0]
+
+    assert "keyword" in first
+    assert "videoId" in first
+    assert "channelId" in first
+    assert "title" in first
+    assert "publishedAt" in first
+    assert "channelTitle" in first
+
+    assert isinstance(first["videoId"], str)
+    assert isinstance(first["channelId"], str)
+    assert isinstance(first["publishedAt"], datetime)
+
+    pprint(videos)
+ 
+
+
+
+
+
 
 
 
