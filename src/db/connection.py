@@ -21,27 +21,24 @@ connection_params = {
     'port': DB_PORT
 }
 
+def get_connection():
+    try: 
+       #establishing connection to server
+       connection = psycopg2.connect(**connection_params)
+       print("Connection established!")
+       return connection
 
-try: 
-    #establishing connection to server
-    connection = psycopg2.connect(**connection_params)
+    except psycopg2.OperationalError as e:
+       print("Connection failed: could not connect to server", e)
 
-    #create command executor
-    cursor = connection.cursor()
+    except psycopg2.Error as e:
+       print("Database error:", e)
 
-    print("Connection established!")
 
-except psycopg2.OperationalError as e:
-    print("Connection failed: could not connect to server", e)
 
-except psycopg2.Error as e:
-    print("Database error:", e)
 
-finally:
-    if 'cursor' in locals() and cursor:
-        cursor.close()
-    if 'connection' in locals() and connection:
-        connection.close()
+
+
 
 
 
