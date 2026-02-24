@@ -1,23 +1,5 @@
-# importing os module for environment variables
-import os
-
-#From Google’s toolbox, take the build tool so I can create a doorway to YouTube’s data
-from googleapiclient.discovery import build
-
-# importing necessary functions from dotenv library
-from dotenv import load_dotenv, dotenv_values
-load_dotenv()
-
 from datetime import datetime
 
-#accessing value and storing it in variable
-API_KEY = os.getenv("GOOGLE_API_KEY")
-
-#creating youtube resource object
-#build function contains API name, API version and API key
-youtube = build('youtube','v3', developerKey=API_KEY)
-
-list_of_video_IDs =  ['jMrNjN0-osw', 'QKYFfYLe5rs', '3MfD_V0o_4U', 'yd_uG3TtREs', '5VYsnngkS_U', 'p2POGKxC0G8', 'gBuecIOZLV4', 'BKOVzHcjEIo', 'cfPHxW47E60', 'IEYDqdl9KbQ']
 
 def get_comment_threads(youtube, video_IDs):
 
@@ -123,17 +105,19 @@ def get_all_comments_for_videos(youtube, video_ids):
     return result
     
 
-def get_video_statistics(youtube, video_IDs):
+def get_video_statistics(youtube, video_ID):
 
     video_statistics = []
 
-    for video_ID in video_IDs:
-       results = youtube.videos().list(
-       part = "statistics,snippet",
-       id = video_ID
-       ).execute()
+    # for video_ID in video_IDs:
+    # results = youtube.videos().list(
 
-       for item in results["items"]:
+    results = youtube.videos().list(
+    part = "statistics,snippet",
+    id = video_ID
+    ).execute()
+
+    for item in results["items"]:
            id = item["id"]
            publishedAt = item["snippet"]["publishedAt"]
            viewCount = item["statistics"]["viewCount"]
@@ -151,15 +135,14 @@ def get_video_statistics(youtube, video_IDs):
     return video_statistics
 
 
-def get_Channel_info(youtube, channel_IDs):
+def get_Channel_info(youtube, channel_ID):
 
-    channel_info = []
+        channel_info = []
 
-    for channel_ID in channel_IDs:
         results = youtube.channels().list(
         part = "id,snippet,statistics,contentDetails",
         id = channel_ID,
-        maxResults = 5
+        maxResults = 1
         ).execute()
 
         for item in results["items"]:
@@ -187,7 +170,7 @@ def get_Channel_info(youtube, channel_IDs):
                    "uploads": uploads
             })
 
-    return channel_info
+        return channel_info
 
 
 def get_Channel_Activity(youtube, channel_IDs):
@@ -231,21 +214,19 @@ def get_Channel_Activity(youtube, channel_IDs):
     return channel_Activity_info
 
 
-#list of keywords representing types of youtube videos with high bot activity
-# themes -> crypto, roblox, robux
-# 3 keywords per theme
-list_of_keywords = ["crypto", "crypto news"
-                    "crypto trading", "robux",
-                    "robux free", "robux gift card codes",
-                    "robux giveaway", "roblox", "roblox gameplay"
-                    "roblox adopt me", "roblox trading"]
-
 
 def searchForVideos(youtube, list_of_keywords):
+    #print("searchForVideos CALLED")
+
+    #print("Keywords received:", list_of_keywords) 
+    #print("Keyword count:", len(list_of_keywords))
 
     videos = []
 
     for keyword in list_of_keywords:
+
+        print("Searching for:", keyword)
+
         results = youtube.search().list(
         part = "snippet",
         q = keyword,
@@ -254,22 +235,29 @@ def searchForVideos(youtube, list_of_keywords):
         ).execute()
 
         for item in results["items"]:
+
+            #skip if item does not contain videoId
+            if "videoId" not in item["id"]:
+                continue
+
             videoId = item["id"]["videoId"]
             channelId = item["snippet"]["channelId"]
             title = item["snippet"]["title"]
             publishedAt = item["snippet"]["publishedAt"]
             channelTitle = item["snippet"]["channelTitle"]
 
-        videos.append({
-            "keyword": keyword,
-            "videoId": videoId,
-            "channelId": channelId,
-            "title": title,
-            "publishedAt": parse_timestamp(publishedAt),
-            "channelTitle": channelTitle
-        })
+            videos.append({
+               "keyword": keyword,
+               "videoId": videoId,
+               "channelId": channelId,
+               "title": title,
+               "publishedAt": parse_timestamp(publishedAt),
+               "channelTitle": channelTitle
+            })
 
-        return videos
+    print("Total videos found:", len(videos))
+
+    return videos
             
 
 
