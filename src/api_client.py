@@ -117,19 +117,22 @@ def get_video_statistics(youtube, video_ID):
     id = video_ID
     ).execute()
 
-    for item in results["items"]:
+    for item in results["items"]:   
            id = item["id"]
            publishedAt = item["snippet"]["publishedAt"]
            viewCount = item["statistics"]["viewCount"]
            likeCount = item["statistics"]["likeCount"]
-           commentCount = item["statistics"]["commentCount"]
+
+           #attempting to obtain commentCount else return None
+           #not all videos have  a commentCount.
+           commentCount = item["statistics"].get("commentCount")
 
            video_statistics.append({
                 "id": id,
                 "publishedAt": parse_timestamp(publishedAt),
                 "viewCount": int(viewCount),
                 "likeCount": int(likeCount),
-                "commentCount": int(commentCount)
+                "commentCount": int(commentCount) if commentCount is not None else None
            })
                
     return video_statistics
@@ -225,7 +228,7 @@ def searchForVideos(youtube, list_of_keywords):
 
     for keyword in list_of_keywords:
 
-        print("Searching for:", keyword)
+        #print("Searching for:", keyword)
 
         results = youtube.search().list(
         part = "snippet",
@@ -255,7 +258,7 @@ def searchForVideos(youtube, list_of_keywords):
                "channelTitle": channelTitle
             })
 
-    print("Total videos found:", len(videos))
+    #print("Total videos found:", len(videos))
 
     return videos
             
