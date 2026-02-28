@@ -2,6 +2,7 @@ import psycopg2
 
 from .connection import get_connection
 from ..api_client import get_Channel_info
+from ..api_client import get_video_statistics
 
 def insert_channel(youtube, videos):
      
@@ -31,7 +32,7 @@ def insert_channel(youtube, videos):
            cursor.execute(insert_query, data)
         
         conn.commit()
-        print("Data inserted successfully!")
+        print("Channel data inserted successfully!")
         
     except psycopg2.Error as e:
         print("Error Inserting: ", e)
@@ -39,6 +40,64 @@ def insert_channel(youtube, videos):
     finally:
         cursor.close()
         conn.close()
+
+
+def insert_video(youtube, videos):
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        for video in videos:
+
+            video_stats = get_video_statistics(youtube, video["videoId"])
+
+            if not video_stats:
+                print(f"No stats returned for video {video["videoId"]}")
+                continue
+         
+            cursor.execute("""
+                 SELECT channel_id
+                 FROM channel
+                 WHERE youtubechannel_id = %s
+             """, (video["channelId"],)
+            )
+           
+            #extracting the int result from the tuple returned
+            result = cursor.fetchone()[0]
+
+            if not result:
+                print(f"No channel found for {video["channelId"]}")
+                continue
+
+            insert_channel_id = result 
+
+            #skipping if an insert tries to add a row with a youtubevideo_id that
+            #already exists
+  
+            insert_query = """
+                    INSERT INTO video (channel_id, viewcount, likecount, 
+                                     commentcount, youtubevideo_id)
+                    VALUES(%s, %s, %s, %s, %s)
+                    ON CONFLICT (youtubevideo_id) DO NOTHING;
+                    """
+            
+            data = (insert_channel_id, video_stats[0]["viewCount"], 
+                    video_stats[0]["likeCount"], video_stats[0]["commentCount"],
+                    video["videoId"])
+            
+            cursor.execute(insert_query, data)
+
+        conn.commit()
+        print("Video data inserted successfully!")
+    
+    except psycopg2.Error as e:
+        print("Error Inserting ", e)
+    
+    finally:
+        cursor.close()
+        conn.close()
+
 
 
    
