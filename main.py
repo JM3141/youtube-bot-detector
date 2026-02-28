@@ -1,7 +1,9 @@
 import os
 
 from src.db.insert import insert_channel
+from src.db.insert import insert_video
 from src.api_client import searchForVideos
+
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -24,12 +26,14 @@ def main():
     #build function contains API name, API version and API key
     youtube = build('youtube','v3', developerKey=API_KEY)
     
+    
     videos = searchForVideos(youtube, list_of_keywords) 
+    
     insert_channel(youtube, videos)
-
-   
+    insert_video(youtube, videos)
     
 
+   
 if __name__ == "__main__":
     main()
 
