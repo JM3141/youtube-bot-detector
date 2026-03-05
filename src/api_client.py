@@ -1,41 +1,57 @@
 from datetime import datetime
+from googleapiclient.errors import HttpError
 
 
-def get_comment_threads(youtube, video_IDs):
+def get_comment_threads(youtube, video_ID):
 
     all_comments = []
+    
+    try:
+       results = youtube.commentThreads().list(
+       part = "snippet",
+       maxResults = 5,
+       videoId = video_ID,
+       textFormat = "plainText"
+       ).execute()
+       
+    #need to explore issue with detecting livestream videos
+    except HttpError as e:
+        if e.resp.status == 403 and "commentsDisabled" in str(e):
+           print(f"Comments disabled for video {video_ID}.")
+           return []
+        if e.resp.status == 403 and ("liveChatNotEnabled" in str(e) or "videoNotFound" in str(e)): 
+           print(f"Video {video_ID} is a livestream or has no comment threads.") 
+           return []
+        
+        raise
 
-    for video_ID in video_IDs:
-        results = youtube.commentThreads().list(
-        part = "snippet",
-        maxResults = 5,
-        videoId = video_ID,
-        textFormat = "plainText"
-        ).execute()
-
-        for item in results["items"]:
-            id = item["snippet"]["topLevelComment"]["id"]
-            comment = item["snippet"]["topLevelComment"]
-            author= comment["snippet"]["authorDisplayName"]
-            text = comment["snippet"]["textOriginal"]
-            publishedAt = comment["snippet"]["publishedAt"]
-            likeCount = comment["snippet"]["likeCount"]
-            author_channel_id = comment["snippet"]["authorChannelId"]["value"]
-            author_profile_image_url = comment["snippet"]["authorProfileImageUrl"]
-            author_channel_url = comment["snippet"]["authorChannelUrl"]
-            updatedAt  = comment["snippet"]["updatedAt"]
+    for item in results["items"]:
+        replyCount = item["snippet"]["totalReplyCount"]
+        videoId = item["snippet"]["videoId"]
+        id = item["snippet"]["topLevelComment"]["id"]
+        comment = item["snippet"]["topLevelComment"]
+        author= comment["snippet"]["authorDisplayName"]
+        text = comment["snippet"]["textOriginal"]
+        publishedAt = comment["snippet"]["publishedAt"]
+        likeCount = comment["snippet"]["likeCount"]
+        author_channel_id = comment["snippet"]["authorChannelId"]["value"]
+        author_profile_image_url = comment["snippet"]["authorProfileImageUrl"]
+        author_channel_url = comment["snippet"]["authorChannelUrl"]
+        updatedAt  = comment["snippet"]["updatedAt"]
      
-            all_comments.append({
-                "id": id,
-                "author": author,
-                "text": text,
-                "publishedAt": parse_timestamp(publishedAt),
-                "likeCount": likeCount,
-                "authorChannelId": author_channel_id,
-                "authorProfileImageUrl": author_profile_image_url,
-                "authorChannelUrl": author_channel_url,
-                "updatedAt": parse_timestamp(updatedAt)            
-            })
+        all_comments.append({
+            "replyCount": replyCount,
+            "videoId": videoId,
+            "id": id,
+            "author": author,
+            "text": text,
+            "publishedAt": parse_timestamp(publishedAt),
+            "likeCount": likeCount,
+            "authorChannelId": author_channel_id,
+            "authorProfileImageUrl": author_profile_image_url,
+            "authorChannelUrl": author_channel_url,
+            "updatedAt": parse_timestamp(updatedAt)            
+        })
         
     return all_comments
 
@@ -45,31 +61,30 @@ def parse_timestamp(ts: str) -> datetime:
     return datetime.fromisoformat(ts.replace("Z", "+00:00"))
 
 
-def get_comment_list(youtube, parent_IDs):
+def get_comment_list(youtube, parent_ID):
 
     comments_replies = []
+   
+    results = youtube.comments().list(
+    part = "snippet",
+    parentId = parent_ID,
+    maxResults = 5,
+    textFormat = "plainText"
+    ).execute()
 
-    for parent_ID in parent_IDs:
-        results = youtube.comments().list(
-        part = "snippet",
-        parentId = parent_ID,
-        maxResults = 5,
-        textFormat = "plainText"
-        ).execute()
+    for item in results["items"]:
+        id = item["id"]
+        parent_id = item["snippet"]["parentId"]
+        comment = item["snippet"]["textOriginal"]
+        author_channel_id = item["snippet"]["authorChannelId"]["value"]
+        author = item["snippet"]["authorDisplayName"]
+        author_profile_image_url = item["snippet"]["authorProfileImageUrl"]
+        author_channel_url = item["snippet"]["authorChannelUrl"]
+        likeCount = item["snippet"]["likeCount"]
+        publishedAt = item["snippet"]["publishedAt"]
+        updatedAt  = item["snippet"]["updatedAt"]
 
-        for item in results["items"]:
-            id = item["id"]
-            parent_id = item["snippet"]["parentId"]
-            comment = item["snippet"]["textOriginal"]
-            author_channel_id = item["snippet"]["authorChannelId"]["value"]
-            author = item["snippet"]["authorDisplayName"]
-            author_profile_image_url = item["snippet"]["authorProfileImageUrl"]
-            author_channel_url = item["snippet"]["authorChannelUrl"]
-            likeCount = item["snippet"]["likeCount"]
-            publishedAt = item["snippet"]["publishedAt"]
-            updatedAt  = item["snippet"]["updatedAt"]
-
-            comments_replies.append({
+        comments_replies.append({
                 "id": id,
                 "parentId": parent_id,
                 "author": author,
@@ -80,27 +95,25 @@ def get_comment_list(youtube, parent_IDs):
                 "authorProfileImageUrl": author_profile_image_url,
                 "authorChannelUrl": author_channel_url,
                 "updatedAt": parse_timestamp(updatedAt)            
-            })
+        })
      
-    
-
     return comments_replies
     
    
 
 #method to get all comments
-def get_all_comments_for_videos(youtube, video_ids):
+def get_all_comments_for_videos(youtube, video_id):
     result = {}
 
-    for video_id in video_ids:
-        top_comments = get_comment_threads(youtube, [video_id])
+    #for video_id in video_ids:
+    top_comments = get_comment_threads(youtube, video_id)
 
-        for comment in top_comments:
-            parent_id = comment["id"]
-            replies = get_comment_list(youtube, [parent_id])
-            comment["replies"] = replies
+    for comment in top_comments:
+        parent_id = comment["id"]
+        replies = get_comment_list(youtube, parent_id)
+        comment["replies"] = replies
 
-        result[video_id] = top_comments
+    result[video_id] = top_comments
 
     return result
     
@@ -118,22 +131,24 @@ def get_video_statistics(youtube, video_ID):
     ).execute()
 
     for item in results["items"]:   
-           id = item["id"]
-           publishedAt = item["snippet"]["publishedAt"]
-           viewCount = item["statistics"]["viewCount"]
-           likeCount = item["statistics"]["likeCount"]
+        id = item["id"]
+        publishedAt = item["snippet"]["publishedAt"]
+        viewCount = item["statistics"]["viewCount"]
+          
+        #Not all YouTube videos expose a public likeCount
+        likeCount = item["statistics"].get("likeCount")
 
-           #attempting to obtain commentCount else return None
-           #not all videos have  a commentCount.
-           commentCount = item["statistics"].get("commentCount")
+        #attempting to obtain commentCount else return None
+        #not all videos have  a commentCount.
+        commentCount = item["statistics"].get("commentCount")
 
-           video_statistics.append({
-                "id": id,
-                "publishedAt": parse_timestamp(publishedAt),
-                "viewCount": int(viewCount),
-                "likeCount": int(likeCount),
-                "commentCount": int(commentCount) if commentCount is not None else None
-           })
+        video_statistics.append({
+            "id": id,
+            "publishedAt": parse_timestamp(publishedAt),
+            "viewCount": int(viewCount),
+            "likeCount": int(likeCount) if likeCount is not None else None,
+            "commentCount": int(commentCount) if commentCount is not None else None
+        })
                
     return video_statistics
 
@@ -175,44 +190,44 @@ def get_Channel_info(youtube, channel_ID):
 
         return channel_info
 
-
-def get_Channel_Activity(youtube, channel_IDs):
+#removed for loop so i make a single api request for a single id
+def get_Channel_Activity(youtube, channel_ID):
 
     channel_Activity_info = []
+ 
+    results = youtube.activities().list(
+    part = "snippet,contentDetails",
+    channelId = channel_ID,
+    maxResults = 1
+    ).execute()
 
-    for channel_ID in channel_IDs:
-        results = youtube.activities().list(
-        part = "snippet,contentDetails",
-        channelId = channel_ID,
-        maxResults = 5
-        ).execute()
+#added id variable to obtain the activity id
+#altered method to reduce the fields required to track channel activity
 
-        for item in results["items"]:
-            publishedAt = item["snippet"]["publishedAt"]
-            channelId = item["snippet"]["channelId"]
-            type = item["snippet"]["type"]
+    for item in results["items"]:
+        id = item["id"]
+        publishedAt = item["snippet"]["publishedAt"]
+        channelId = item["snippet"]["channelId"]
+        type = item["snippet"]["type"]
 
-            upload = None
-            like = None
-            playlistAdd = None
+        video_id_of_action = None
 
-            if type == "upload":
-                upload = item["contentDetails"]["upload"]["videoId"]
+        if type == "upload":
+            video_id_of_action = item["contentDetails"]["upload"]["videoId"]
             
-            elif type == "like":
-                like = item["contentDetails"]["like"]["resourceId"]["videoId"]
+        elif type == "like":
+            video_id_of_action = item["contentDetails"]["like"]["resourceId"]["videoId"]
             
-            elif type == "playListItem":
-                playlistAdd = item["contentDetails"]["playlistItem"]["resourceId"]["videoId"]
+        elif type == "playListItem":
+            video_id_of_action = item["contentDetails"]["playlistItem"]["resourceId"]["videoId"]
 
-            channel_Activity_info.append({
-                   "channelId": channelId,
-                   "publishedAt": parse_timestamp(publishedAt),
-                   "type": type,
-                   "upload": upload,
-                   "like": like,
-                   "playListAdd": playlistAdd                  
-            })
+        channel_Activity_info.append({
+            "id": id,
+            "channelId": channelId,
+            "publishedAt": parse_timestamp(publishedAt),
+            "type": type,
+            "video_id_of_action": video_id_of_action                
+        })
 
     return channel_Activity_info
 
@@ -261,7 +276,11 @@ def searchForVideos(youtube, list_of_keywords):
     #print("Total videos found:", len(videos))
 
     return videos
-            
+
+
+
+
+
 
 
 
