@@ -3,6 +3,8 @@ import os
 from src.db.insert import insert_channel
 from src.db.insert import insert_video
 from src.api_client import searchForVideos
+from src.db.insert import get_comments
+from src.db.insert import get_author
 
 
 from dotenv import load_dotenv
@@ -31,6 +33,8 @@ def main():
     
     insert_channel(youtube, videos)
     insert_video(youtube, videos)
+    get_author(youtube, videos)
+    get_comments(youtube, videos)
     
 
    
