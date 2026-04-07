@@ -50,6 +50,142 @@ def extract_text_features(row):
 
     return features
 
+def extract_behavioural_features(all_rows):
+
+    author_groups = {}
+    video_groups = {}
+
+    for row in all_rows:
+
+        author = row["authorname"]
+        video = row["youtubevideo_id"]
+
+        #group rows by author name
+
+        if author not in author_groups:
+            author_groups[author] = []
+            author_groups[author].append(row)
+        
+        #group rows by video
+        if video not in video_groups:
+            video_groups[video] = []
+            video_groups[video].append(row)
+        
+    author_features = {}
+    video_features = {}
+
+    for author in author_groups:
+
+        rows = author_groups[author]
+
+        #number of comments made by author
+        num_comments = len(rows)
+        
+        #number of unique videos
+        unique_video_ids = set()
+
+        for row in rows:
+           unique_video_ids.add(row["youtubevideo_id"])
+        
+        num_of_unique_videos = len(unique_video_ids)
+        
+        #sorting list of comments by the time they were published
+        rows.sort(key = lambda row: row["publishedat"])
+
+        time_difference = []
+
+        for i in range(1, len(rows)):
+            current_time = rows[i]["publishedat"]
+            previous_time = rows[i - 1]["publishedat"]
+            diff = current_time - previous_time
+            time_difference.append(diff)
+        
+        if len(time_difference) >= 1:
+            average_time_between = sum(time_difference) / len(time_difference)
+        else:
+            average_time_between = None
+        
+
+        #examining comment behaviour, the predictability of the
+        #waiting times between comments
+
+
+
+        if len(time_difference) >= 2:
+
+           mean = sum(time_difference) / len(time_difference)
+
+           squared_distances = []
+
+           for time in time_difference:
+               distance_from_mean = time - mean
+               squared_difference = distance_from_mean ** 2
+               squared_distances.append(squared_difference)
+
+           variance = sum(squared_distances)
+
+           burstiness  = variance / mean
+
+        else:
+                 
+           burstiness = None
+
+        #checking if author posts the same text more than once.
+
+        all_text = []  
+
+        for row in rows:
+            all_text.append(row["text"])
+
+        text_counts = {}
+
+        for text in all_text:
+
+            if text in all_text:
+                text_counts[text] += 1
+            else:
+                text_counts[text] = 1
+        
+        repeated_flag = 0
+        for val in text_counts.values():
+            if val >= 2:
+                repeated_flag = 1
+                break
+        
+        author_features[author] = {
+            "author_num_comments": num_comments,
+            "author_unique_videos": num_of_unique_videos,
+            "author_avg_time_between": average_time_between,
+            "author_burstiness": burstiness,
+            "author_repeated_text": repeated_flag
+        }
+        
+
+
+
+
+        
+
+  
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
 
 
 
