@@ -72,8 +72,7 @@ def extract_behavioural_features(all_rows):
             video_groups[video].append(row)
         
     author_features = {}
-    video_features = {}
-
+   
     for author in author_groups:
 
         rows = author_groups[author]
@@ -160,6 +159,98 @@ def extract_behavioural_features(all_rows):
             "author_repeated_text": repeated_flag
         }
         
+
+    #behavioural features per video
+
+    video_features = {}
+
+    for video in video_groups:
+
+        rows = video_groups[video]
+
+        #number of comments
+        num_comments = len(rows)
+
+        #number of unique authors
+        unique_author_name = set()
+
+        for row in rows:
+            unique_author_name.add(row["authorname"])
+        
+        num_of_unique_authors = len(unique_author_name)
+        
+        
+        #comment velocity(comments per hour)
+
+        #sorting list of comments by the time they were published
+        rows.sort(key = lambda row: row["publishedat"])
+
+        
+        if len(rows) >= 2:
+
+            first_time = rows[0]["publishedat"]
+            last_time = rows[-1]["publishedat"]
+
+            #difference is a timedelta representing the time span.
+            #difference.total_seconds() converts that span into seconds.
+            #total_seconds  is a  float value that represents  duration in seconds
+            #You divide by 3600 to get hours.
+
+
+            difference = last_time - first_time
+            total_seconds = difference.total_seconds()
+            total_hours = total_seconds / 3600
+
+            if total_hours > 0:
+
+                comment_velocity = num_comments / total_hours
+
+            else:
+
+                comment_velocity = None
+        
+        else:
+        
+            comment_velocity = None
+        
+        
+        video_features[video] = {
+            "video_num_comments": num_comments,
+            "video_unique_authors": unique_author_name,
+            "video_comment_velocity": comment_velocity
+        }
+
+    return author_features, video_features
+
+    #Note to self commit the changes of adding behavioural features per video
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+      
+
 
 
 
