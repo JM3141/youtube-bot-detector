@@ -222,7 +222,55 @@ def extract_behavioural_features(all_rows):
 
     return author_features, video_features
 
-    #Note to self commit the changes of adding behavioural features per video
+
+def extract_timing_features(row):
+       
+    timing_features = {}
+
+    hour = row["publishedat"].hour
+
+    dayOfWeek = row["publishedat"].weekday()
+
+    isEdited = False
+
+    if row["publishedat"] != row["updatedat"]:
+        isEdited = True
+
+    timing_features["hour_of_day"] = hour
+
+    timing_features["day_of_week"] = dayOfWeek
+
+    timing_features["was_edited"] = isEdited
+
+    return  timing_features
+
+    
+
+
+
+    
+    
+
+    
+
+    
+       
+
+       
+
+       
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
