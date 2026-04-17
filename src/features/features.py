@@ -53,23 +53,16 @@ def extract_text_features(row):
 def extract_behavioural_features(all_rows):
 
     author_groups = {}
-    video_groups = {}
-
+    
     for row in all_rows:
 
         author = row["authorname"]
-        video = row["youtubevideo_id"]
-
+        
         #group rows by author name
 
         if author not in author_groups:
             author_groups[author] = []
-            author_groups[author].append(row)
-        
-        #group rows by video
-        if video not in video_groups:
-            video_groups[video] = []
-            video_groups[video].append(row)
+        author_groups[author].append(row)
         
     author_features = {}
    
@@ -104,12 +97,9 @@ def extract_behavioural_features(all_rows):
         else:
             average_time_between = None
         
-
         #examining comment behaviour, the predictability of the
         #waiting times between comments
-
-
-
+        
         if len(time_difference) >= 2:
 
            mean = sum(time_difference) / len(time_difference)
@@ -159,68 +149,7 @@ def extract_behavioural_features(all_rows):
             "author_repeated_text": repeated_flag
         }
         
-
-    #behavioural features per video
-
-    video_features = {}
-
-    for video in video_groups:
-
-        rows = video_groups[video]
-
-        #number of comments
-        num_comments = len(rows)
-
-        #number of unique authors
-        unique_author_name = set()
-
-        for row in rows:
-            unique_author_name.add(row["authorname"])
-        
-        num_of_unique_authors = len(unique_author_name)
-        
-        
-        #comment velocity(comments per hour)
-
-        #sorting list of comments by the time they were published
-        rows.sort(key = lambda row: row["publishedat"])
-
-        
-        if len(rows) >= 2:
-
-            first_time = rows[0]["publishedat"]
-            last_time = rows[-1]["publishedat"]
-
-            #difference is a timedelta representing the time span.
-            #difference.total_seconds() converts that span into seconds.
-            #total_seconds  is a  float value that represents  duration in seconds
-            #You divide by 3600 to get hours.
-
-
-            difference = last_time - first_time
-            total_seconds = difference.total_seconds()
-            total_hours = total_seconds / 3600
-
-            if total_hours > 0:
-
-                comment_velocity = num_comments / total_hours
-
-            else:
-
-                comment_velocity = None
-        
-        else:
-        
-            comment_velocity = None
-        
-        
-        video_features[video] = {
-            "video_num_comments": num_comments,
-            "video_unique_authors": unique_author_name,
-            "video_comment_velocity": comment_velocity
-        }
-
-    return author_features, video_features
+    return author_features
 
 
 def extract_timing_features(row):
@@ -243,6 +172,80 @@ def extract_timing_features(row):
     timing_features["was_edited"] = isEdited
 
     return  timing_features
+
+
+def extract_video_features(all_rows):
+     
+    video_groups = {}
+
+    for row in all_rows:
+
+        video = row["youtubevideo_id"]
+
+        #group rows by video
+        if video not in video_groups:
+            video_groups[video] = []          
+        video_groups[video].append(row)
+
+    
+    video_features = {}
+
+    for video in video_groups:
+
+        rows = video_groups[video]
+
+        #number of comments
+        num_comments = len(rows)
+
+        #number of unique authors
+        unique_author_name = set()
+
+        for row in rows:
+            unique_author_name.add(row["authorname"])
+        
+        num_of_unique_authors = len(unique_author_name)
+             
+        #comment velocity(comments per hour)
+
+        #sorting list of comments by the time they were published
+        rows.sort(key = lambda row: row["publishedat"])
+      
+        if len(rows) >= 2:
+
+            first_time = rows[0]["publishedat"]
+            last_time = rows[-1]["publishedat"]
+
+            #difference is a timedelta representing the time span.
+            #difference.total_seconds() converts that span into seconds.
+            #total_seconds  is a  float value that represents  duration in seconds
+            #You divide by 3600 to get hours.
+
+            difference = last_time - first_time
+            total_seconds = difference.total_seconds()
+            total_hours = total_seconds / 3600
+
+            if total_hours > 0:
+
+                comment_velocity = num_comments / total_hours
+
+            else:
+
+                comment_velocity = None
+        
+        else:
+
+            comment_velocity = None
+              
+        video_features[video] = {
+            "video_num_comments": num_comments,
+            "video_unique_authors": unique_author_name,
+            "video_comment_velocity": comment_velocity
+        }
+
+    return video_features
+
+
+
 
     
 
