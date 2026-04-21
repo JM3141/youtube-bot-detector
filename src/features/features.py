@@ -1,4 +1,6 @@
+from datetime import timedelta
 import string
+
 
 
 #Implementing simple numeric text features
@@ -15,10 +17,18 @@ def extract_text_features(row):
      
     punctuation_count = sum (1 for ch in text if ch in string.punctuation)
     total_characters = len(text)
-    features["punctuation_ratio"] = punctuation_count / total_characters
+
+    if total_characters > 0:
+        features["punctuation_ratio"] = punctuation_count / total_characters
+    else:
+        features["punctuation_ratio"] = 0
 
     uppercase_count = sum (1 for ch in text if ch in string.ascii_uppercase)
-    features["uppercase_ratio"] = uppercase_count / total_characters
+
+    if total_characters > 0:
+        features["uppercase_ratio"] = uppercase_count / total_characters
+    else:
+        features["uppercase_ratio"] = 0
 
     #check if many repeated characters in string
     # 1 yes
@@ -93,7 +103,7 @@ def extract_behavioural_features(all_rows):
             time_difference.append(diff)
         
         if len(time_difference) >= 1:
-            average_time_between = sum(time_difference) / len(time_difference)
+            average_time_between = sum(time_difference, timedelta(0)) / len(time_difference)
         else:
             average_time_between = None
         
@@ -102,22 +112,26 @@ def extract_behavioural_features(all_rows):
         
         if len(time_difference) >= 2:
 
-           mean = sum(time_difference) / len(time_difference)
+           meanAsTd = sum(time_difference, timedelta(0)) / len(time_difference)
 
            squared_distances = []
 
            for time in time_difference:
-               distance_from_mean = time - mean
-               squared_difference = distance_from_mean ** 2
-               squared_distances.append(squared_difference)
+               #converting timedelta(duration) to float in seconds
+               distance_from_mean = (time - meanAsTd).total_seconds()             
+               squared_distances.append(distance_from_mean ** 2)
 
-           variance = sum(squared_distances)
+           variance = sum(squared_distances) / len(squared_distances)
 
-           burstiness  = variance / mean
+           mean_seconds = meanAsTd.total_seconds()
 
+           if mean_seconds > 0:
+               burstiness  = variance / mean_seconds
+                           
+           else:
+               burstiness = 0
         else:
-                 
-           burstiness = None
+            burstiness = None    
 
         #checking if author posts the same text more than once.
 
@@ -130,7 +144,7 @@ def extract_behavioural_features(all_rows):
 
         for text in all_text:
 
-            if text in all_text:
+            if text in text_counts:
                 text_counts[text] += 1
             else:
                 text_counts[text] = 1
@@ -238,7 +252,7 @@ def extract_video_features(all_rows):
               
         video_features[video] = {
             "video_num_comments": num_comments,
-            "video_unique_authors": unique_author_name,
+            "video_unique_authors": len(unique_author_name),
             "video_comment_velocity": comment_velocity
         }
 
