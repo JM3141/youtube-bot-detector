@@ -5,6 +5,8 @@ from src.db.insert import insert_video
 from src.api_client import searchForVideos
 from src.db.insert import get_comments
 from src.db.insert import get_author
+from src.db.extract_data import load_raw_comments
+from src.features.feature_pipeline import build_feature_pipeline
 
 
 from dotenv import load_dotenv
@@ -14,27 +16,41 @@ from googleapiclient.discovery import build
 
 def main():
 
-    list_of_keywords = ["crypto", "crypto news",
-                    "crypto trading", "robux",
-                    "robux free", "robux gift card codes",
-                    "robux giveaway", "roblox", "roblox gameplay",
-                    "roblox adopt me", "roblox trading"]
+  #  list_of_keywords = ["crypto", "crypto news",
+  #                  "crypto trading", "robux",
+  #                  "robux free", "robux gift card codes",
+  #                  "robux giveaway", "roblox", "roblox gameplay",
+  #                  "roblox adopt me", "roblox trading"]
     
 
     #accessing value and storing it in variable
-    API_KEY = os.getenv("GOOGLE_API_KEY")
+    #API_KEY = os.getenv("GOOGLE_API_KEY")
 
     #creating youtube resource object
     #build function contains API name, API version and API key
-    youtube = build('youtube','v3', developerKey=API_KEY)
+    #youtube = build('youtube','v3', developerKey=API_KEY)
     
     
-    videos = searchForVideos(youtube, list_of_keywords) 
+    #videos = searchForVideos(youtube, list_of_keywords) 
     
-    insert_channel(youtube, videos)
-    insert_video(youtube, videos)
-    get_author(youtube, videos)
-    get_comments(youtube, videos)
+    #insert_channel(youtube, videos)
+    #insert_video(youtube, videos)
+    #get_author(youtube, videos)
+    #get_comments(youtube, videos)
+
+
+    #load extracted YouTube rows
+
+    rows = load_raw_comments()
+
+    #passing youtube rows into feature pipeline
+
+    final_dataset = build_feature_pipeline(rows)
+
+    print(final_dataset[0])
+    print(final_dataset[1])
+
+
     
 
    
