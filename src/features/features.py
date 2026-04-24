@@ -1,5 +1,6 @@
 from datetime import timedelta
 import string
+import spacy
 
 
 
@@ -9,6 +10,9 @@ def extract_text_features(row):
 
     text = row["text"]
     features = {}
+
+
+    #features based on characters
 
     features["char_length"] = len(text)
 
@@ -57,6 +61,72 @@ def extract_text_features(row):
         has_link = 1
     
     features["has_link"] = has_link
+
+    # features based on how text works as a language
+
+    nlp = spacy.blank("en")
+
+    doc =  nlp(text)
+     
+    token_count = len([t for t in doc if not t.is_space])
+
+    #stop_word ratio measures how many of the words in the comment are common everyday words
+    
+    if token_count > 0:
+   
+        num_of_stop_words = 0
+
+        for token in doc:
+
+            if token.is_stop:
+
+                num_of_stop_words += 1
+    
+        stop_word_ratio = num_of_stop_words / token_count
+
+        features["stop_word_ratio"] = stop_word_ratio
+
+    #punctation ratio spacy
+
+        punct_count = 0
+
+        for token in doc:
+
+            if token.is_punct:
+
+                punct_count += 1
+        
+        punct_ratio = punct_count / token_count
+
+        features["spacy_punctuation_ratio"] = punct_ratio
+
+    #repeated phrases
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     return features
 
