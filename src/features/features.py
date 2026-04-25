@@ -11,10 +11,8 @@ def extract_text_features(row):
     text = row["text"]
     features = {}
 
-
     #features based on characters
-    features["text"] = text
-
+    
     features["char_length"] = len(text)
 
     words = text.split()
