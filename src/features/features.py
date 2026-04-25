@@ -13,6 +13,7 @@ def extract_text_features(row):
 
 
     #features based on characters
+    features["text"] = text
 
     features["char_length"] = len(text)
 
@@ -73,6 +74,8 @@ def extract_text_features(row):
     #stop_word ratio measures how many of the words in the comment are common everyday words
     
     if token_count > 0:
+
+        features["token_count"] = token_count
    
         num_of_stop_words = 0
 
@@ -101,32 +104,33 @@ def extract_text_features(row):
         features["spacy_punctuation_ratio"] = punct_ratio
 
     #repeated phrases
+        
+        lemma_sequence = []
+
+        for token in doc:
+            if not token.is_punct and not token.is_space:
+                lemma_sequence.append(token.lemma_)
+
+        two_word_phrases = []
+
+        for i in range(0,len(lemma_sequence) - 1):
+            two_word = lemma_sequence[i] +  " " + lemma_sequence[i + 1]
+            two_word_phrases.append(two_word)
+        
+        if len(two_word_phrases) != len(set(two_word_phrases)):
+            repeated_phrases = 1
+        else:
+            repeated_phrases = 0
+        
+        features["repeated_phrases"] = repeated_phrases
     
-    
+    else:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        features["token_count"] = 0
+        features["stop_word_ratio"] = 0
+        features["spacy_punctuation_ratio"] = 0
+        features["repeated_phrases"] = 0
+        
 
     return features
 
