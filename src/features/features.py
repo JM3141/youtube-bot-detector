@@ -11,6 +11,8 @@ def extract_text_features(row):
     text = row["text"]
     features = {}
 
+    features["comment_text"] = text
+
     #features based on characters
     
     features["char_length"] = len(text)
