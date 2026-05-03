@@ -108,7 +108,7 @@ def extract_text_features(row):
         lemma_sequence = []
 
         for token in doc:
-            if not token.is_punct and not token.is_space:
+            if token.lemma_ and not token.is_punct and not token.is_space:
                 lemma_sequence.append(token.lemma_)
 
         two_word_phrases = []
