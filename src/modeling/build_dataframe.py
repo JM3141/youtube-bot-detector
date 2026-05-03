@@ -16,11 +16,15 @@ df["isBot"] = None
 
 def construct_dataframe():
 
-    
     return df
     #acquiring first row of dataframe
     #print(df.iloc[0])
-    
+
+#function to convert dataframe to csv
+#index = False, means does not include dataframe index
+def save_features_csv(df, path= "datasets/features.csv"):
+    df.to_csv(path, index=False)
+    print(f"features have been saved to {path}")
 
 
 
