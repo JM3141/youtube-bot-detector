@@ -12,3 +12,6 @@ __pycache__/
 
 #Ignore pytest cache
 .pytest_cache/
+
+#Ignore dataset folder
+datasets/
