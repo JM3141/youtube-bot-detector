@@ -16,22 +16,32 @@ def label_comments_menu(df):
 
     print("Creating manual labeling menu...\n")
 
-    for i, row in df.iterrows():
+    #finding the first row that has not been labelled
+    start_index = df[df["isBot"].isna()].index.min()
+
+    #condition for if all rows have been labelled
+    if pd.isna(start_index):
+        print("All comments are already labelled")
+        return df
+
+    for i in range(start_index, len(df)):
         
-        if pd.isna(row["isBot"]):
+        if pd.isna(df.at[i, "isBot"]):
 
             print("\nComment:")
-            print(row["comment_text"])
+            print(df.at[i, "comment_text"])
             print("\nLabel this comment:")
             print("  1 = Bot")
             print("  0 = Human")
             print("  s = Skip")
             print("  q = Quit")
 
-            choice = input("Your choice: ").strip().lower()
+            choice = input("\nYour choice: ").strip().lower()
 
             if choice == "q":
-                print("Stopping manual labeling process...")
+                print("\nStopping manual labeling process...")
+                df.to_csv("datasets/labeled.csv", index=False)
+                print("Progress Saved.")
                 break
             
             if choice == "s":
@@ -40,6 +50,9 @@ def label_comments_menu(df):
             if choice in ["0", "1"]:
                print("Labeling comment...")
                df.at[i, "isBot"] = int(choice)
+               print("Label saved.")
+               df.to_csv("datasets/labeled.csv", index=False)
+               print("process complete.")
             else:
                 print("Invalid input...")
     
