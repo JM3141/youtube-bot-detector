@@ -14,7 +14,7 @@ from sklearn.linear_model import LogisticRegression
 # 3) scaler is fit only on training data and then applied to test data to avoid data leakage.
 def feature_scaler(X_train, X_test):
 
-    scaler = StandardScaler
+    scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
@@ -31,6 +31,16 @@ def train_logistic_regression_model(X_train, y_train):
 
     return model
     
+
+#evaluation of the trained model
+# 1) X_test required
+# 2) y_text required
+# 3) model(trained)
+def evaluating_model(X_test, y_test, model):
+    accuracy = model.score(X_test, y_test)
+
+    return accuracy
+
 
 
 
