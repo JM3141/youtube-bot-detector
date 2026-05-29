@@ -1,3 +1,5 @@
+import pandas as pd
+
 from data.split_data import splitting_dataset
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -41,7 +43,33 @@ def evaluating_model(X_test, y_test, model):
 
     return accuracy
 
+#function to load the remaining unlabelled data
+def load_unlabelled_data(scaler):
 
+    #skip 201 rows to load the unlabelled data
+    dataframe = pd.read_csv("datasets/labeled.csv", skiprows = 201)
+
+    #From unlabelled rows, extract only the input features
+    X_unlabelled = dataframe[['char_length', 'word_count',
+                   'punctuation_ratio', 'uppercase_ratio',
+                   'repeated_chars', 'has_link',
+                   'token_count', 'stop_word_ratio',
+                   'spacy_punctuation_ratio', 'repeated_phrases'
+                   ]]
+    
+    #scaling the features
+    #transform -> used for test data and unlabelled data
+    #fit_transform -> used for training data
+    X_unlabelled_scaled = scaler.transform(X_unlabelled)
+
+    return dataframe, X_unlabelled, X_unlabelled_scaled
+
+
+
+
+
+
+    
 
 
 
