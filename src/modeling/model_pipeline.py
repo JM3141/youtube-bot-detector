@@ -65,6 +65,14 @@ def load_unlabelled_data(scaler):
     return dataframe, X_unlabelled, X_unlabelled_scaled
 
 
+def predict_unlabelled(model, X_unlabelled_scaled):
+    #returns a 1D NumPy array
+    y_predict = model.predict(X_unlabelled_scaled)
+    #returns a 2D NumPy array
+    #obtaining the second column which represents the likelihood of comment being a bot
+    y_probability = model.predict_proba(X_unlabelled_scaled)[:,1]
+
+    return y_predict, y_probability
 
 
 
