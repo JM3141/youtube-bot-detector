@@ -1,11 +1,11 @@
 # YouTube Bot Detector!
 
-A Python project for detecting suspicious or automated activity on YouTube using API data and machine learning.
+A Python project for detecting bot generated YouTube comments using API data and machine learning.
 
 ## User Stories
 The following user stories describe the core goals of the project:
-- As a user, I want to upload YouTube account activity data so the system can analyze it.
-- As a user, I want to see which accounts are flagged as suspicious bots.
-- As a user, I want to view metrics (comment frequency, posting ratios, text similarity) that explain why an account was flagged.
-- As a user, I want to interact with a dashboard to explore suspicious activity patterns.
-- As a user, I want confidence scores (e.g., “80% likely bot”) so I can judge reliability.
+- As a user, I want to upload YouTube comment data so the system can analyze it.
+- As a user, I want to the system to  flag comments that appear as bots generated.
+- As a user, I want to view metrics and explain why comment was classified as a bot.
+- As a user, I want to interact with a dashboard to investigate patterns of bot behaviour.
+- As a user, I want confidence scores for each comment so I can judge reliability of the system's predictions.
