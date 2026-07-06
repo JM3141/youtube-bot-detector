@@ -9,7 +9,7 @@ def get_comment_threads(youtube, video_ID):
     try:
        results = youtube.commentThreads().list(
        part = "snippet",
-       maxResults = 5,
+       maxResults = 5, #max result should be 50
        videoId = video_ID,
        textFormat = "plainText"
        ).execute()

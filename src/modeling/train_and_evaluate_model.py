@@ -2,11 +2,11 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 
-
+#update splitting dataset method
 def splitting_dataset():
 
     #first 200 rows of csv file containing youtube comment info labelled
-    dataframe = pd.read_csv("datasets/labeled.csv", nrows= 200)
+    dataframe = pd.read_csv("datasets/labeled.csv", nrows= 199)
 
     #X is the inputs the model uses to make predictions(features)
 
