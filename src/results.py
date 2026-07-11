@@ -11,7 +11,7 @@ def create_results_dataframe(unlabelled_df, y_predict, y_probability):
 
     results = pd.DataFrame(data)
 
-    return results.loc[0]
+    return results
 
 
 
