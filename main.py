@@ -18,6 +18,7 @@ from src.modeling.model_pipeline import train_logistic_regression_model
 from src.modeling.model_pipeline import load_unlabelled_data
 from src.modeling.model_pipeline import predict_unlabelled
 from src.results import  create_results_dataframe
+from src.results import sort_by_probability
 
 
 
@@ -110,7 +111,12 @@ def main():
 
     result = create_results_dataframe(dataframe, y_predict, y_probability)
 
-    print(result)
+    #print(result.loc[5])
+
+    sorted_df = sort_by_probability(result)
+
+    #.iloc[0] retrieves the first row by position, not by index label.
+    print(sorted_df.iloc[0])
 
 
 if __name__ == "__main__":
