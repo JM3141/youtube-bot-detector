@@ -19,6 +19,7 @@ from src.modeling.model_pipeline import load_unlabelled_data
 from src.modeling.model_pipeline import predict_unlabelled
 from src.results import  create_results_dataframe
 from src.results import sort_by_probability
+from src.results import filter_suspicious_comments
 
 
 
@@ -116,7 +117,14 @@ def main():
     sorted_df = sort_by_probability(result)
 
     #.iloc[0] retrieves the first row by position, not by index label.
-    print(sorted_df.iloc[0])
+    #print(sorted_df.iloc[0])
+
+    #testing function to filter comments that have a bot probability greater than or equal to 0.8
+    suspicious_comments = filter_suspicious_comments(sorted_df)
+
+    print(suspicious_comments.head())
+
+
 
 
 if __name__ == "__main__":
