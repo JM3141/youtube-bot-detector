@@ -20,6 +20,10 @@ def sort_by_probability(results_df):
 
     return sorted_df
 
+#function filters comments in dataframe that have a bot probability greater than or equal to 0.8
+def filter_suspicious_comments(results_df, threshold=0.8):
+    return results_df[results_df["bot_probability"] >= threshold]
+
 
 
 
