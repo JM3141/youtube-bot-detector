@@ -20,6 +20,7 @@ from src.modeling.model_pipeline import predict_unlabelled
 from src.results import  create_results_dataframe
 from src.results import sort_by_probability
 from src.results import filter_suspicious_comments
+from src.results import summary_metrics
 
 
 
@@ -122,7 +123,12 @@ def main():
     #testing function to filter comments that have a bot probability greater than or equal to 0.8
     suspicious_comments = filter_suspicious_comments(sorted_df)
 
-    print(suspicious_comments.head())
+    #print(suspicious_comments.head())
+    
+    #testing summary_metrics function acquire bot activity metrics
+    summary =  summary_metrics(sorted_df)
+
+    print(summary)
 
 
 
