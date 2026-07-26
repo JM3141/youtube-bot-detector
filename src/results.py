@@ -24,6 +24,18 @@ def sort_by_probability(results_df):
 def filter_suspicious_comments(results_df, threshold=0.8):
     return results_df[results_df["bot_probability"] >= threshold]
 
+#function provides summary statistics for all comments in the dataframe that are flagged as bots
+def summary_metrics(results_df, threshold=0.8):
+    total = len(results_df)
+    flagged = (results_df["bot_probability"] >= threshold).sum()
+
+    return {
+        "total_comments": total,
+        "flagged_comments": flagged,
+        "flagged_ratio": flagged / total if total > 0 else 0
+    }
+
+
 
 
 
