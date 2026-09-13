@@ -1,0 +1,249 @@
+import os
+import pytest
+from pprint import pprint
+from dotenv import load_dotenv
+from googleapiclient.discovery import build
+from src.api_client import get_comment_threads
+from src.api_client import get_all_comments_for_videos
+from src.api_client import get_video_statistics
+from src.api_client import get_Channel_info
+from src.api_client import get_Channel_Activity
+from src.api_client import searchForVideos
+
+from datetime import datetime
+
+
+
+load_dotenv()
+API_KEY = os.getenv("GOOGLE_API_KEY")
+
+
+@pytest.mark.integration
+def test_get_comment_threads_real():
+
+    if not API_KEY:
+        pytest.skip("GOOGLE_API_KEY is not set in environment")
+
+    #Create a real Youtube Client
+    youtube = build('youtube','v3', developerKey=API_KEY)
+
+    video_ids = ['jMrNjN0-osw']
+
+    comments = get_comment_threads(youtube, video_ids)
+
+
+
+    # Assertions: check structure, not exact text
+
+    assert isinstance(comments, list)
+    assert len(comments) > 0
+
+    first = comments[0]
+   
+    assert "author" in first
+    assert "text" in first
+    assert "publishedAt" in first
+    assert "likeCount" in first
+    assert "authorChannelId" in first
+    assert "authorProfileImageUrl" in first
+    assert "authorChannelUrl" in first
+    assert "updatedAt" in first
+
+    assert isinstance(first["author"], str)
+    assert isinstance(first["text"], str)
+    assert isinstance(first["publishedAt"], datetime)
+    assert isinstance(first["likeCount"], int)
+    assert isinstance(first["authorChannelId"],str)
+    assert isinstance(first["authorChannelUrl"],str)
+    assert isinstance(first["updatedAt"],datetime)
+    
+    pprint(comments)
+    #pprint formats complex python objects so they are easy to read
+
+@pytest.mark.integration
+def test_get_all_comments():
+
+    if not API_KEY:
+        pytest.skip("GOOGLE_API_KEY is not set in environment") 
+
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+    video_ids = ['AHRM_QNvp9E']
+
+    comments = get_all_comments_for_videos(youtube, video_ids)
+
+    assert isinstance(comments,dict)
+    assert len(comments) > 0
+
+    first = comments[video_ids[0]][0] 
+    #first_replies = comments[video_ids[0]][0]["replies"]
+
+    #assert len(first_replies) > 0
+
+    assert "author" in first
+    assert "text" in first
+    assert "publishedAt" in first
+    assert "likeCount" in first
+    assert "authorChannelId" in first
+    assert "authorProfileImageUrl" in first
+    assert "authorChannelUrl" in first
+    assert "updatedAt" in first
+
+    assert isinstance(first["author"], str)
+    assert isinstance(first["text"], str)
+    assert isinstance(first["publishedAt"], datetime)
+    assert isinstance(first["likeCount"], int)
+    assert isinstance(first["authorChannelId"],str)
+    assert isinstance(first["authorChannelUrl"],str)
+    assert isinstance(first["updatedAt"],datetime)
+
+    pprint(comments)
+
+@pytest.mark.integration
+def test_get_video_statistics_real():
+
+    if not API_KEY:
+        pytest.skip("GOOGLE_API_KEY is not set in environment") 
+
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+    video_ids = ['AHRM_QNvp9E']
+    
+    videos = get_video_statistics(youtube, video_ids)
+
+    assert isinstance(videos, list)
+    assert len(videos) > 0
+
+    first = videos[0]
+
+    assert "id" in first
+    assert "publishedAt" in first
+    assert "viewCount" in first
+    assert "likeCount" in first
+    assert "commentCount" in first
+
+    assert isinstance(first["publishedAt"], datetime)
+    assert isinstance(first["viewCount"], int)
+    assert isinstance(first["likeCount"], int)
+    assert isinstance(first["commentCount"], int)
+
+    pprint(videos)
+
+
+@pytest.mark.integration
+def test_get_Channel_info_real():
+
+    if not API_KEY:
+        pytest.skip("GOOGLE_API_KEY is not set in environment")
+
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+    channel_IDs = ["UCNWfrhzNRMYx_p1YIUKVDKQ"]
+
+    channel = get_Channel_info(youtube, channel_IDs)
+
+    assert isinstance(channel, list)
+    assert len(channel) > 0
+
+    first = channel[0]
+  
+    assert "id" in first
+    assert "title" in first 
+    assert "description" in first  
+    assert "customUrl" in first 
+    assert "publishedAt" in first
+    assert "thumbnailUrl" in first 
+    assert "viewCount" in first 
+    assert "subscriberCount" in first 
+    assert "videoCount" in first 
+    assert "uploads" in first 
+    
+
+    assert isinstance(first["title"], str)
+    assert isinstance(first["description"], str)
+    assert isinstance(first["customUrl"], str)
+    assert isinstance(first["publishedAt"], datetime)
+    assert isinstance(first["thumbnailUrl"], str)
+    assert isinstance(first["viewCount"], int)
+    assert isinstance(first["subscriberCount"], int)
+    assert isinstance(first["videoCount"], int)
+    assert isinstance(first["uploads"], str)
+    
+    pprint(channel)
+
+@pytest.mark.integration
+def test_get_Channel_Activity_real():
+
+    if not API_KEY:
+       pytest.skip("GOOGLE_API_KEY is not set in environment")
+
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+    channel_IDs = ["UCNWfrhzNRMYx_p1YIUKVDKQ"]
+
+    channel = get_Channel_Activity(youtube, channel_IDs)
+
+    assert isinstance(channel, list)
+    assert len(channel) > 0
+
+    first = channel[0]
+
+    assert "channelId" in first
+    assert "publishedAt" in first
+    assert "type" in first
+    assert "upload" in first
+    assert "like" in first
+    assert "playListAdd" in first
+
+
+    assert isinstance(first["channelId"], str)
+    assert isinstance(first["publishedAt"], datetime)
+    assert isinstance(first["type"], str)
+    
+    pprint(channel)
+
+@pytest.mark.integration
+def test_searchForVideos_real():
+
+    if not API_KEY:
+        pytest.skip("GOOGLE_API_KEY is not set in environment")
+    
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+    keywords = ["crypto", "crypto news"]
+
+    videos = searchForVideos(youtube, keywords)
+
+    assert isinstance(videos, list)
+    assert len(videos) >  0
+
+    first = videos[0]
+
+    assert "keyword" in first
+    assert "videoId" in first
+    assert "channelId" in first
+    assert "title" in first
+    assert "publishedAt" in first
+    assert "channelTitle" in first
+
+    assert isinstance(first["videoId"], str)
+    assert isinstance(first["channelId"], str)
+    assert isinstance(first["publishedAt"], datetime)
+
+    pprint(videos)
+ 
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+    
