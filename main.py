@@ -21,6 +21,7 @@ from src.results import  create_results_dataframe
 from src.results import sort_by_probability
 from src.results import filter_suspicious_comments
 from src.results import summary_metrics
+from dashboard import run_dashboard
 
 
 
@@ -126,9 +127,16 @@ def main():
     #print(suspicious_comments.head())
     
     #testing summary_metrics function acquire bot activity metrics
-    summary =  summary_metrics(sorted_df)
+    #summary =  summary_metrics(sorted_df)
 
-    print(summary)
+    #print(summary)
+    
+    #created function to test streamlit dashboard
+    run_dashboard(sorted_df)
+
+
+
+
 
 
 
